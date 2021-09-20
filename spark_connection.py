@@ -87,15 +87,8 @@ def plot_avg_speed(avg_speed_dict):
     x = np.arange(len(labels))  # the label locations
     width = 0.35  # the width of the bars
     fig, ax = plt.subplots()
-    print("==========================")
-    print("==========================")
-    print("==========================")
-    print(x.shape)
     print(len(avg_speed_dict["green"]))
     print(len(avg_speed_dict["yellow"]))
-    print("==========================")
-    print("==========================")
-    print("==========================")
     bar1 = ax.bar(x - width/2, avg_speed_dict["green"], width, label="Green Taxi speed", color = "green")
     bar2 = ax.bar(x + width/2, avg_speed_dict["yellow"], width, label="Yellow Taxi speed", color = "yellow")
     #Add some text for labels, title and custom x-axis tick labels, etc.
