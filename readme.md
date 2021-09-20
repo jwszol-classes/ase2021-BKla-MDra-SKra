@@ -1,34 +1,36 @@
-# Projekt ASE 2021
+# Projekt ASEID 2021
 
-## Temat zadania: 
+# Cel projektu
+Celem projektu jest dokonanie analizy danych zawierających informacje na temat poruszających się taksówek w Nowym Jorku (yellow and green taxi). Zbiór danych zawiera następujące informacje (pick-up and drop-off dates/times, pick-up and drop-off locations, trip distances, itemized fares, rate types, payment types, and driver-reported passenger counts).
 
-### Zadanie 2
-Dokonaj analizy danych zawierających informacje na temat poruszających się taksówek w Nowym Jorku (yellow and green taxi). Zbiór danych zawiera następujące informacje (pick-up and drop-off dates/times, pick-up and drop-off locations, trip distances, itemized fares, rate types, payment types, and driver-reported passenger counts). 
+# Wymagania
+* Python version > 3.8
+* Java version > 8
+'''python
+pip3 install -r requirements.txt
+'''
 
-Zadanie wymaga przeanalizowania danych w następującym przedziale czasowym:
-* Rok 2020 / Maj
-* Rok 2019 / Maj
+## Java
+PySpark wymaga Javy do uruchamiania skryptów. Konieczne jest wcześniejsze pobranie jre i jdk, oraz ustawienie zmiennej środowiskowej do Javy .
 
-Wykryj anomalie pomiędzy (pick-up and drop-off dates/times) a przebytym dystansem. Z wykorzystaniem metody grupowania według k-średnich znajdź i zinterpretuj wyniki.
-Skoreluj informacje dotyczące typu płatności a ilości przewożonych pasażerów
-Wylicz średnią prędkość taksówki na podstawie informacji na temat czasu (pick-up and drop-off dates/times) oraz przebytej odległości (trip distances)
+# Wykonanie
+Wszystkie założenia projektowe zostały spełnione, program został uruchomiony za pomocą putty na serwerach AWS, a także lokalnie. Wyliczona została średnia prędkość taksówki na podstawie informacji na temat czasu (pick-up and drop-off dates/times) oraz przebytej odległości (trip distances). Przeanalizowane dane pochodzą z okresu maj 2019 - maj 2020.
 
-# Kroki
+![obraz](https://user-images.githubusercontent.com/51135031/134080645-3ad89005-f037-4f2e-8c81-ec4c0189bc5c.png)
 
-## Spark
-Instalacja sparka https://phoenixnap.com/kb/install-spark-on-windows-10
-## EC2
-Aby mieć bezpieczny dostęp do utworzonego przez nas później klastra, musimy utworzyć klucz. W konsoli, w 'AWS services' przechodzimy do EC2 -> Key Pairs -> Create Key Pair -> Nadajemy nazwę -> wybieramy Putty -> Zapisujemy.
-## EMR
-Po zalogowaniu się do konsoli, wybieramy z 'AWS services' EMR i tworzymy cluster wybierając w software configuration Spark, w 'Hardware configuration' wybieramy m4.xlarge a na samym dole wybieramy klucz, który wcześniej utworzyliśmy. Tworzymy klaster.
-Po wyskoczeniu nowego okna szukamy 'Security groups for Master' i przechodzimy do miejsca na które wskazuje. Zaznaczamy nazwę grupy, gdzie w 'description' jest Master. Poniżej przechodzimy do 'Inbound rules' i edytujemy. Na samym dole klikamy 'add rule', w której jako typ ustawiamy ssh i source typ jako anywhere. (Niezalecane dla produkcji, wtedy wybieramy konkretne ip). Zapisujemy zmiany.
+Z powodu ogromnej ilości danych do pobrania i uruchomienia projekt został uruchomiony w całości jedynie poprzez serwer, a lokalnie uruchamiane były wersje z mocno okrojoną liczbą danych.
 
-## S3 bucket
-W konsoli, w 'AWS services' przechodzimy do S3 i tworzymy nowy bucket i uploudujemy do niego nasze pliki ze skryptem.
+# Zastosowane rozwiązania w kodzie
+Dane do obróbki pochodzą z oficjalnej rządowej strony (https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page). Wczytywane pliki csv są zamieniane na wektory zawierające dane, a następnie liczone są średnie prędkości. Podczas przetwarzania danych zauważyliśmy anomalie w postaci przebytych nieosiągalnie dużych odległości, zbyt długich czasów jazdy, czy zbyt wysokich prędkości na trasie. Zdecydowaliśmy się na obcięcie odstających wartości, aby otrzymane średnie były wierną reprezentacją faktycznych wartości.
+Zastosowane w naszym kodzie biblioteki to:
+* numpy - standardowa biblioteka Pythona, służąca do poprawienia szybkości obliczeń
+* matplotlib - biblioteka używana do tworzenia wizualnej reprezentacji danych w postaci wykresu i zapisywania go w klastrze obliczeniowym
+* pyspark, boto3 - używane do łączenia się z serwerami aws
 
-## Putty
-Pobieramy putty oraz puttygen ze strony https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html. Odpalamy PuttyGen i wybieramy wcześniej zapisany przez nas Key Pair i zapisujemy go do ThisPc/Documents/aws/keys. Przechodzimy do wcześniej przez nas utworzonego clustra i znajdujemy 'Master public DNS', wchodzimy w 'Connect to the Master Node Using SSH' i kopiujemy host name field. Odpalamy PuTTy i w miejscu host name wklejamy poprzednio skopiowaną wartość. Connection typ ustawiamy jako SSH. W kategoriach przechodzimy do SSH -> AUTH -> browse i wybieramy wcześniej zapisany plik przez puttygen. Klikamy open. Wpisujemy '''aws s3 cp s3://<nazwa_bucketa>/<nazwa_pliku.py> . '''. Komenda ls sprawdzamy czy plik zostal pobrany. Następnie plik uruchamiamy komenda '''spark-submit <nazwa_pliku.py>'''
+# Wyniki
+Otrzymane wyniki są w granicach rozsądku i wydają się być dobrą reprezentacją ruchu taksówek w Nowym Jorku. Na wykresie widać, że średnia prędkość zielonych taksówek jest każdego miesiąca wyższa niż taksówek zielonych. Ciekawym zjawiskiem jest skokowy wzrost prędkości na przełomie marca i kwietnia 2020 roku. Podejrzewamy, że ma on związek z obostrzeniami przemieszczania się, wprowadzonymi w tamtym okresie.
 
+![obraz](https://user-images.githubusercontent.com/51135031/134083068-5c1f7bcb-ff51-4f9a-b2a0-90d2524984d1.png)
 
 ## Skład Grupy
 * Barbara Klaudel
