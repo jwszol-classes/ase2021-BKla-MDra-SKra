@@ -100,6 +100,8 @@ def plot_avg_speed(avg_speed_dict):
 
     plt.show()
 
+    plt.savefig('data/taxi_chart.png')
+
 
 if __name__ == "__main__":
     avg_speed_dict = get_avg_speed_dict()
