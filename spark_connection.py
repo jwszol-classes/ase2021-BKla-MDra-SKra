@@ -3,11 +3,11 @@ import pyspark.sql.functions as F
 from pyspark.sql.types import DoubleType, TimestampType
 import matplotlib.pyplot as plt
 import numpy as np
+import boto3	# Amazon's aws library for python 3
 
 year_range = (19, 20)
 month_range = ((5, 12), (1, 5))
 colors = ("yellow", "green")
-
 
 def get_path(color, year, month):
     return f"s3n://nyc-tlc/trip data/{color}_tripdata_{year}-{month}.csv"
@@ -100,7 +100,26 @@ def plot_avg_speed(avg_speed_dict):
 
     plt.show()
 
-    plt.savefig('data/taxi_chart.png')
+    plt.savefig("data/taxi_chart.png")
+    # create a connection to s3
+    s3 = boto3.resource("s3",
+                        aws_access_key_id=aws_access_key_id,
+                        aws_secret_access_key=aws_secret_access_key)
+
+    # you need a bucket, make one and put its name here
+    bucket = "taxi_bucket"
+
+    image_name = "taxi_chart.png"
+    plt.savefig("data/" + image_name)
+
+    # upload image to aws s3
+    # warning, the ACL here is set to public-read
+    img_data = open("data/" + image_name, "rb")
+    s3.Bucket(bucket).put_object(Key=image_name, Body=img_data,
+                                 ContentType="image/png", ACL="public-read")
+
+    # Generate the URL to get 'key-name' from 'bucket-name'
+    url = "http://" + bucket + ".s3.amazonaws.com/" + image_name
 
 
 if __name__ == "__main__":
