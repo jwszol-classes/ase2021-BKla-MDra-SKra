@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import boto3	# Amazon's aws library for python 3
 
-year_range = (19, 20)
+year_range = (2019, 2020)
 month_range = ((5, 12), (1, 5))
 colors = ("yellow", "green")
 
@@ -16,17 +16,21 @@ def get_avg_speed_dict():
     avg_speed = {c: [] for c in colors}
 
     for color in colors:
-        for i in range(len(year_range)+1):
+        for i in range(len(year_range)):
             year = year_range[i]
             for m in range(month_range[i][0], month_range[i][1]+1):
                 month = "0" + str(m) if m<10 else str(m)
                 path = get_path(color, year, month)
+                print(f"color: {color}")
+                print(f"year: {year}")
+                print(f"month: {month}")
+                print(f"path: {path}")
                 avg_speed[color].append(calc_speed(path))
     return avg_speed
 
 
 def calc_speed(path):
-    spark = SparkSession.builder .appName("TAXI").getOrCreate()
+    spark = SparkSession.builder.appName("spark_connection").getOrCreate()
 
     if "green" in path:
         df = (
@@ -75,7 +79,7 @@ def calc_speed(path):
 
     # Get average speed
     avg_speed = df.groupBy().avg("speed_km_h").collect()[0]
-    return avg_speed
+    return avg_speed[0]
 
 
 def plot_avg_speed(avg_speed_dict):
@@ -83,6 +87,15 @@ def plot_avg_speed(avg_speed_dict):
     x = np.arange(len(labels))  # the label locations
     width = 0.35  # the width of the bars
     fig, ax = plt.subplots()
+    print("==========================")
+    print("==========================")
+    print("==========================")
+    print(x.shape)
+    print(len(avg_speed_dict["green"]))
+    print(len(avg_speed_dict["yellow"]))
+    print("==========================")
+    print("==========================")
+    print("==========================")
     bar1 = ax.bar(x - width/2, avg_speed_dict["green"], width, label="Green Taxi speed", color = "green")
     bar2 = ax.bar(x + width/2, avg_speed_dict["yellow"], width, label="Yellow Taxi speed", color = "yellow")
     #Add some text for labels, title and custom x-axis tick labels, etc.
@@ -100,26 +113,25 @@ def plot_avg_speed(avg_speed_dict):
 
     plt.show()
 
-    plt.savefig("data/taxi_chart.png")
+    plt.savefig("taxi_chart.png")
     # create a connection to s3
-    s3 = boto3.resource("s3",
-                        aws_access_key_id=aws_access_key_id,
-                        aws_secret_access_key=aws_secret_access_key)
+    s3 = boto3.resource("s3")
 
     # you need a bucket, make one and put its name here
-    bucket = "taxi_bucket"
+    bucket = "firstbucketseba"
 
     image_name = "taxi_chart.png"
-    plt.savefig("data/" + image_name)
+    plt.savefig(image_name)
 
     # upload image to aws s3
     # warning, the ACL here is set to public-read
-    img_data = open("data/" + image_name, "rb")
+    img_data = open(image_name, "rb")
     s3.Bucket(bucket).put_object(Key=image_name, Body=img_data,
                                  ContentType="image/png", ACL="public-read")
 
     # Generate the URL to get 'key-name' from 'bucket-name'
     url = "http://" + bucket + ".s3.amazonaws.com/" + image_name
+    print(url)
 
 
 if __name__ == "__main__":
