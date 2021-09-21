@@ -6,9 +6,10 @@ Celem projektu jest dokonanie analizy danych zawierających informacje na temat 
 # Wymagania
 * Python version > 3.8
 * Java version > 8
-'''python
-pip3 install -r requirements.txt
-'''
+
+```python
+ pip3 install -r requirements.txt
+ ```
 
 ## Java
 PySpark wymaga Javy do uruchamiania skryptów. Konieczne jest wcześniejsze pobranie jre i jdk, oraz ustawienie zmiennej środowiskowej do Javy .

@@ -1,0 +1,4 @@
+boto3==1.18.44
+matplotlib==3.4.3
+numpy==1.19.5
+pyspark==3.1.2
